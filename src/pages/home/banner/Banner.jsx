@@ -1,9 +1,9 @@
 import { Carousel } from 'react-responsive-carousel';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import BannerImg1 from '../../../assets/banner.jpg'
-import BannerImg2 from '../../../assets/test.png'
+import BannerImg2 from '../../../assets/blood-donation-4.jpg'
 import BannerImg3 from '../../../assets/Donor.jpg'
-import BannerImg4 from '../../../assets/react.svg'
+import BannerImg4 from '../../../assets/blood-donation-6.jpg'
 // import BannerImg5 from '../../../assets/banner.jpg'
 // import BannerImg6 from '../../../assets/banner.jpg'
 
@@ -22,12 +22,6 @@ const Banner = () => {
                 </div>
                 <div>
                     <img src={BannerImg4} />
-                </div>
-                <div>
-                    <img src={BannerImg1} />
-                </div>
-                <div>
-                    <img src={BannerImg1} />
                 </div>
             </Carousel>
         </div>

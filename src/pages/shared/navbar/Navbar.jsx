@@ -20,8 +20,13 @@ const Navbar = () => {
 
     const Navitems = <>
         <li><NavLink to="/" className={({ isActive }) => isActive ? "text-[#B71B1C] font-semibold" : ""}>Home</NavLink></li>
-        <li><NavLink to="/about" className={({ isActive }) => isActive ? "text-[#B71B1C] font-semibold" : ""}>About</NavLink></li>
         <li><NavLink to="/event" className={({ isActive }) => isActive ? "text-[#B71B1C] font-semibold" : ""}>Event</NavLink></li>
+        {
+            user ? <>
+                <li><NavLink to="/donor" className={({ isActive }) => isActive ? "text-[#B71B1C] font-semibold" : ""}>Donor</NavLink></li>
+            </> : <></>
+        }
+        <li><NavLink to="/about" className={({ isActive }) => isActive ? "text-[#B71B1C] font-semibold" : ""}>About</NavLink></li>
         <li><NavLink to="/blog" className={({ isActive }) => isActive ? "text-[#B71B1C] font-semibold" : ""}>Blog</NavLink></li>
     </>
 

@@ -1,20 +1,67 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
 
 const Register = () => {
     const { register, handleSubmit, formState: { errors, isSubmitting }, watch } = useForm();
-    const { createUser } = useAuth();
+    const { createUser } = useAuth(); // Remove updateUserProfile if not needed
+    const axiosSecure = useAxiosSecure();
+    const navigate = useNavigate();
+    const [authError, setAuthError] = useState('');
 
     const password = watch("password");
 
-    const onSubmit = async (data) => {
-        console.log(data);
+    // Unified function to store user activity (register)
+    const storeUserActivity = async (userData, formData, loginMethod, activityType = 'register') => {
         try {
-            await createUser(data.email, data.password);
+            const activityData = {
+                userId: userData.uid,
+                email: userData.email,
+                loginMethod: loginMethod,
+                activityType: activityType,
+                name: formData.name,
+                phone: formData.phone,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                platform: navigator.platform
+            };
+
+            await axiosSecure.post('/users', activityData);
+            console.log(`${activityType} activity stored successfully`);
         } catch (error) {
-            console.error(error);
+            console.error(`Error storing ${activityType} activity:`, error);
+            // Don't block user registration if storage fails
+        }
+    };
+
+    const onSubmit = async (data) => {
+        setAuthError('');
+        try {
+            // Create user in Firebase
+            const result = await createUser(data.email, data.password);
+            console.log('User created successfully:', result.user);
+
+            // Store user registration activity in backend
+            await storeUserActivity(result.user, data, 'email', 'register');
+
+            // Redirect to home page
+            navigate('/');
+
+        } catch (error) {
+            console.error('Registration error:', error);
+            
+            // Handle specific Firebase errors
+            if (error.code === 'auth/email-already-in-use') {
+                setAuthError('This email is already registered. Please use a different email or sign in.');
+            } else if (error.code === 'auth/weak-password') {
+                setAuthError('Password is too weak. Please choose a stronger password.');
+            } else if (error.code === 'auth/invalid-email') {
+                setAuthError('Invalid email address. Please check your email.');
+            } else {
+                setAuthError('Failed to create account. Please try again.');
+            }
         }
     }
 
@@ -42,6 +89,18 @@ const Register = () => {
 
                 {/* Form Section */}
                 <div className="p-4 sm:p-6 md:p-8">
+                    {/* Error Display */}
+                    {authError && (
+                        <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3">
+                            <p className="text-red-700 text-sm flex items-center gap-2">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {authError}
+                            </p>
+                        </div>
+                    )}
+
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
 
                         {/* Name Field */}

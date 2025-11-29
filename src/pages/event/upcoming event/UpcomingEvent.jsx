@@ -7,10 +7,11 @@ import {
   FaHeartbeat,
 } from "react-icons/fa";
 
-import event1 from "../../../assets/test.png";
+import event1 from "../../../assets/blood-donation-2.jpg";
 import event2 from "../../../assets/Donor.jpg";
 // import event3 from "../../../assets/test.png";
-import sideImg from "../../../assets/react.svg";
+import sideImg from "../../../assets/blood-donation-2.jpg";
+import { NavLink } from "react-router";
 
 export default function UpcomingEvents() {
   const sectionRef = useRef(null);
@@ -132,9 +133,9 @@ export default function UpcomingEvents() {
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit
               tellus, luctus nec ullamcorper mattis.
             </p>
-            <button className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg transition">
+            <NavLink to='/donor_form' className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg transition">
               Start Donate
-            </button>
+            </NavLink>
           </motion.div>
         </motion.div>
       </div>

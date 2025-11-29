@@ -1,39 +1,82 @@
-import React from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
+import { useState } from 'react';
 
 const Login = () => {
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
-    const { signInWithGoogle, signInWithFacebook } = useAuth();
+    const { signInWithGoogle, signInWithFacebook, signIn } = useAuth();
+    const axiosSecure = useAxiosSecure();
     const navigate = useNavigate();
+    const [authError, setAuthError] = useState('');
+
+    // Unified function to store user activity (login)
+    const storeUserActivity = async (userData, loginMethod, activityType = 'login') => {
+        try {
+            const activityData = {
+                userId: userData.uid,
+                email: userData.email,
+                loginMethod: loginMethod,
+                activityType: activityType,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                platform: navigator.platform
+            };
+
+            await axiosSecure.post('/users', activityData);
+            console.log(`${activityType} activity stored successfully`);
+        } catch (error) {
+            console.error(`Error storing ${activityType} activity:`, error);
+            // Don't show error to user - this is just for logging
+        }
+    };
 
     const handleGoogleSignIn = () => {
+        setAuthError('');
         signInWithGoogle()
             .then(result => {
-                console.log(result.user)
+                console.log(result.user);
+                // Store Google login activity
+                storeUserActivity(result.user, 'google', 'login');
                 navigate('/');
             })
             .catch(error => {
-                console.error(error);
-            })
-    }
+                console.error('Google Sign-In Error:', error);
+                setAuthError('Google sign-in failed. Please try again.');
+            });
+    };
 
     const handleFacebookSignIn = () => {
+        setAuthError('');
         signInWithFacebook()
             .then(result => {
                 console.log('Facebook sign-in successful:', result.user);
+                // Store Facebook login activity
+                storeUserActivity(result.user, 'facebook', 'login');
                 navigate('/');
             })
             .catch(error => {
                 console.error('Facebook Sign-In Error:', error);
+                setAuthError('Facebook sign-in failed. Please try again.');
             });
-    }
+    };
 
     const onSubmit = async (data) => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        console.log(data);
-    }
+        setAuthError('');
+        try {
+            // Email/password login
+            const result = await signIn(data.email, data.password);
+            console.log('Email login successful:', result.user);
+
+            // Store email login activity
+            await storeUserActivity(result.user, 'email', 'login');
+            navigate('/');
+        } catch (error) {
+            console.error('Email login error:', error);
+            setAuthError('Invalid email or password. Please try again.');
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-100 flex items-center justify-center p-3 sm:p-4 lg:p-6 relative overflow-hidden">
@@ -62,6 +105,18 @@ const Login = () => {
 
                 {/* Form Section */}
                 <div className="p-4 sm:p-6 md:p-8">
+                    {/* Error Display */}
+                    {authError && (
+                        <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3">
+                            <p className="text-red-700 text-sm flex items-center gap-2">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {authError}
+                            </p>
+                        </div>
+                    )}
+
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
 
                         {/* Email Field */}

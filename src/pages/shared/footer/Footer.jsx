@@ -68,7 +68,7 @@ const Footer = () => {
                 </div>
 
                 {/* Newsletter */}
-                <form className="bg-[#555555] rounded-xl w-fit p-6">
+                <form className="bg-[#555555] rounded-xl w-fit p-4 lg:p-6">
                     <h6 className="text-white text-2xl mb-4">Newsletter</h6>
                     <fieldset className="w-80">
                         <label className='text-white'>Enter your email address</label>
@@ -83,7 +83,7 @@ const Footer = () => {
 
             {/* Divider */}
             <div className="border-t border-gray-600 mt-12 pt-6 text-center text-sm text-gray-400">
-                Copyright © 2025 Donors, All rights reserved. Present by CreedCreatives
+                Copyright © 2025 Donors, All rights reserved. Present by Tahmid
             </div>
         </footer>
     );

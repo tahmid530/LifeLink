@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import bannerImage from "../../../assets/banner.jpg";
+import bannerImage from "../../../assets/blood-donation-1.jpg";
 
 const Banner = () => {
     return (

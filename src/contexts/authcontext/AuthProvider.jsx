@@ -8,8 +8,8 @@ import { AuthContext } from './AuthContext';
 const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
 
-facebookProvider.addScope('email');
-facebookProvider.addScope('public_profile');
+// facebookProvider.addScope('email');
+// facebookProvider.addScope('public_profile');
 
 const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -25,22 +25,20 @@ const AuthProvider = ({ children }) => {
         return signInWithEmailAndPassword(auth, email, password);
     }
 
-    const signInWithGoogle = () =>{
+    const signInWithGoogle = () => {
         setLoading(true);
         return signInWithPopup(auth, googleProvider);
     }
 
-const signInWithFacebook = () => {
+    const signInWithFacebook = () => {
         setLoading(true);
         return signInWithPopup(auth, facebookProvider)
             .then((result) => {
-                // Facebook sign-in successful
                 console.log('Facebook sign-in successful:', result.user);
                 return result;
             })
             .catch((error) => {
                 console.error('Facebook sign-in error:', error);
-                // Handle specific Facebook errors
                 if (error.code === 'auth/account-exists-with-different-credential') {
                     throw new Error('An account already exists with the same email address. Please try signing in with Google or email.');
                 } else if (error.code === 'auth/popup-closed-by-user') {
@@ -53,7 +51,7 @@ const signInWithFacebook = () => {
             });
     }
 
-    const logOut = () =>{
+    const logOut = () => {
         setLoading(true);
         return signOut(auth);
     }

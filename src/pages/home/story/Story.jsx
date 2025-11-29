@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { FaPhoneAlt, FaHeart } from "react-icons/fa";
-import storyImg from "../../../assets/Screenshot 2025-11-02 204537.png";
+import storyImg from "../../../assets/blood-donation-7.jpg";
 import CountUp from "react-countup";
 import { Link } from "react-router";
 
