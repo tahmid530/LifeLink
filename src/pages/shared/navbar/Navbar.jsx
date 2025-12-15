@@ -1,16 +1,63 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AuthContext } from '../../../contexts/authcontext/AuthContext';
 import { useNavigate } from 'react-router';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
 
 const Navbar = () => {
     const { user, logOut } = useContext(AuthContext);
+    const axiosSecure = useAxiosSecure();
     const navigate = useNavigate();
+    
+    const [userName, setUserName] = useState(''); // State for backend user name
+    const [loading, setLoading] = useState(true);
+
+    // Fetch user name from backend when user logs in
+    useEffect(() => {
+        const fetchUserName = async () => {
+            if (!user) {
+                setUserName('');
+                setLoading(false);
+                return;
+            }
+
+            try {
+                setLoading(true);
+                // Fetch user activities to get the latest name
+                const response = await axiosSecure.get(`/users/activities/${user.uid}`);
+                
+                if (response.data.success && response.data.data.length > 0) {
+                    // Find the latest activity with a name
+                    const activitiesWithName = response.data.data.filter(activity => activity.name);
+                    
+                    if (activitiesWithName.length > 0) {
+                        // Get the latest activity with a name
+                        setUserName(activitiesWithName[0].name);
+                    } else {
+                        // Fallback to Firebase display name
+                        setUserName(user.displayName || '');
+                    }
+                } else {
+                    // No backend data found, use Firebase name
+                    setUserName(user.displayName || '');
+                }
+            } catch (error) {
+                console.error('Error fetching user name:', error);
+                // Fallback to Firebase display name
+                setUserName(user.displayName || '');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserName();
+    }, [user, axiosSecure]); // Re-fetch when user changes
 
     const handleLogOut = () => {
         logOut()
             .then(() => {
                 console.log('User logged out successfully');
+                setUserName('');
                 navigate('/');
             })
             .catch(error => {
@@ -29,6 +76,9 @@ const Navbar = () => {
         <li><NavLink to="/about" className={({ isActive }) => isActive ? "text-[#B71B1C] font-semibold" : ""}>About</NavLink></li>
         <li><NavLink to="/blog" className={({ isActive }) => isActive ? "text-[#B71B1C] font-semibold" : ""}>Blog</NavLink></li>
     </>
+
+    // Display name with loading state
+    const displayName = loading ? 'Loading...' : (userName || user?.displayName || user?.email?.split('@')[0] || 'User');
 
     return (
         <div className="navbar bg-base-100 shadow-sm px-4 sm:px-6">
@@ -79,10 +129,16 @@ const Navbar = () => {
                                 className="flex items-center gap-2 cursor-pointer hover:bg-red-50 rounded-lg p-2 transition-colors duration-200"
                             >
                                 <div className="h-10 w-10">
-                                    <img src={user.photoURL} alt="" className='rounded-full' />
+                                    {user.photoURL ? (
+                                        <img src={user.photoURL} alt="Profile" className='rounded-full w-10 h-10 object-cover' />
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-full bg-[#B71B1C] flex items-center justify-center text-white font-semibold">
+                                            {displayName?.charAt(0).toUpperCase()}
+                                        </div>
+                                    )}
                                 </div>
-                                <span className="text-sm text-gray-700 hidden md:inline">
-                                    {user.displayName || user.email}
+                                <span className="text-sm text-gray-700 hidden md:inline max-w-[150px] truncate">
+                                    {displayName}
                                 </span>
                                 <svg
                                     className="w-4 h-4 text-gray-600 hidden sm:block"
@@ -101,10 +157,10 @@ const Navbar = () => {
                                 {/* User Info */}
                                 <li className="px-4 py-2 border-b border-gray-100">
                                     <div className="flex flex-col">
-                                        <span className="font-semibold text-gray-800">
-                                            {user.displayName || 'User'}
+                                        <span className="font-semibold text-gray-800 max-w-[200px] truncate">
+                                            {displayName}
                                         </span>
-                                        <span className="text-sm text-gray-500 truncate">
+                                        <span className="text-sm text-gray-500 truncate max-w-[200px]">
                                             {user.email}
                                         </span>
                                     </div>

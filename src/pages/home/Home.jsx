@@ -1,8 +1,8 @@
 import React from 'react';
-import Banner from './banner/banner';
+import Banner from './banner/Banner';
 import Story from './story/Story';
-import Work from './work/work';
-import Donate from './why donate/donate';
+import Work from './work/Work';
+import Donate from './why donate/Donate';
 import Blog from './blog/Blog';
 import Event from './event/Event';
 
